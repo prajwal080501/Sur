@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.5.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm verify
+      - name: Cache MongoDB integration binary
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/mongodb-binaries
+          key: mongodb-8.0.15-${{ runner.os }}-${{ runner.arch }}
+      - name: Run disposable infrastructure integration tests
+        env:
+          MONGOMS_DOWNLOAD_DIR: /home/runner/.cache/mongodb-binaries
+        run: pnpm test:integration
+      - name: Install ffmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+      - run: pnpm test:loudness
+      - run: python -m pip install -e 'workers/ml[dev]'
+      - run: ruff check workers/ml
+      - run: pnpm test:workers
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e

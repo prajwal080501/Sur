@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "pack": "sur-free-procedural-v1",
+  "maximumPackagedBytes": 15728640,
+  "assets": [
+    {
+      "id": "harmonic-pad",
+      "kind": "procedural",
+      "implementation": "packages/audio-engine/src/accompaniment/tone-accompaniment.ts",
+      "license": "LicenseRef-Sur-Original",
+      "source": "Original deterministic synthesis authored for Sur",
+      "packagedBytes": 0
+    },
+    {
+      "id": "harmonic-piano",
+      "kind": "procedural",
+      "implementation": "packages/audio-engine/src/accompaniment/tone-accompaniment.ts",
+      "license": "LicenseRef-Sur-Original",
+      "source": "Original deterministic synthesis authored for Sur",
+      "packagedBytes": 0
+    },
+    {
+      "id": "harmonic-strum",
+      "kind": "procedural",
+      "implementation": "packages/audio-engine/src/accompaniment/tone-accompaniment.ts",
+      "license": "LicenseRef-Sur-Original",
+      "source": "Original deterministic synthesis authored for Sur",
+      "packagedBytes": 0
+    },
+    {
+      "id": "tabla-keherwa-dadra",
+      "kind": "procedural",
+      "implementation": "packages/audio-engine/src/accompaniment/tone-accompaniment.ts",
+      "license": "LicenseRef-Sur-Original",
+      "source": "Original deterministic percussion synthesis authored for Sur",
+      "packagedBytes": 0
+    },
+    {
+      "id": "pop-drums",
+      "kind": "procedural",
+      "implementation": "packages/audio-engine/src/accompaniment/tone-accompaniment.ts",
+      "license": "LicenseRef-Sur-Original",
+      "source": "Original deterministic percussion synthesis authored for Sur",
+      "packagedBytes": 0
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+Metadata-Version: 2.4
+Name: sur-worker
+Version: 0.1.0
+Summary: Media and ML worker contracts for Sur
+Requires-Python: >=3.11
+Requires-Dist: boto3<2,>=1.43.97
+Requires-Dist: Pillow<13,>=12.2
+Provides-Extra: dev
+Requires-Dist: ruff==0.16.8; extra == "dev"

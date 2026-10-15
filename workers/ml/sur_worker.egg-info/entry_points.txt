@@ -1,0 +1,2 @@
+[console_scripts]
+sur-worker = sur_worker.aws_runtime:main

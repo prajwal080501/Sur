@@ -1,0 +1,26 @@
+{
+  "name": "@sur/audio-engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./tone-accompaniment": {
+      "types": "./dist/accompaniment/tone-accompaniment.d.ts",
+      "import": "./dist/accompaniment/tone-accompaniment.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint src --max-warnings 0",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@sur/shared-types": "workspace:*",
+    "tone": "^15.0.0"
+  }
+}

@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sur-worker"
+version = "0.1.0"
+description = "Media and ML worker contracts for Sur"
+requires-python = ">=3.11"
+dependencies = ["boto3>=1.43.97,<2", "Pillow>=12.2,<13"]
+
+[project.scripts]
+sur-worker = "sur_worker.aws_runtime:main"
+
+[project.optional-dependencies]
+dev = ["ruff==0.16.8"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.setuptools.packages.find]
+include = ["sur_worker*"]

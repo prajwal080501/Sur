@@ -1,0 +1,6 @@
+docs/SPEC.md
+docs/*.docx
+pnpm-lock.yaml
+dist/
+coverage/
+node_modules/

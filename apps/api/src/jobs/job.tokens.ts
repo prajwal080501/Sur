@@ -1,0 +1,4 @@
+export const TAKE_JOB_CATALOG = Symbol('TAKE_JOB_CATALOG');
+export const JOB_SUBMISSION_STORE = Symbol('JOB_SUBMISSION_STORE');
+export const JOB_SERVICE = Symbol('JOB_SERVICE');
+export const JOB_OUTPUT_URL_RESOLVER = Symbol('JOB_OUTPUT_URL_RESOLVER');

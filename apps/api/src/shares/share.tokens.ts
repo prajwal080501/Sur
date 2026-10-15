@@ -1,0 +1,4 @@
+export const TAKE_SHARE_CATALOG = Symbol('TAKE_SHARE_CATALOG');
+export const SHARE_REPOSITORY = Symbol('SHARE_REPOSITORY');
+export const PUBLIC_SHARE_MEDIA_STORE = Symbol('PUBLIC_SHARE_MEDIA_STORE');
+export const SHARE_SERVICE = Symbol('SHARE_SERVICE');
