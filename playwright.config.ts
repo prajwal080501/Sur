@@ -37,8 +37,10 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'pnpm --filter @sur/web dev --host 127.0.0.1',
+    command:
+      'pnpm --filter @sur/web... build && pnpm --filter @sur/web exec vite preview --host 127.0.0.1 --port 5173 --strictPort',
     url: 'http://127.0.0.1:5173',
     reuseExistingServer: !process.env.CI,
+    timeout: 120_000,
   },
 });

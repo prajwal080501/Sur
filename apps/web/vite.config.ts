@@ -4,6 +4,11 @@ import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+  optimizeDeps: {
+    // These load only after a click or an export. Prebundle them so the first
+    // session does not reload once Vite finishes discovering them.
+    include: ['tone', '@sur/audio-engine/tone-accompaniment', '@breezystack/lamejs'],
+  },
   plugins: [
     react(),
     VitePWA({
