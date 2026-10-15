@@ -36,6 +36,39 @@ For the media worker, install `workers/ml[dev]` into a Python environment. Run
 Current implementation progress and unverified acceptance criteria are tracked in
 [docs/STATUS.md](docs/STATUS.md).
 
+## Vercel preview
+
+The accompaniment studio is a static Vite app. Pitch detection, chords, and playback run in the
+browser and do not call the API. Share pages are the only client that fetches
+`VITE_API_BASE_URL` (default `http://127.0.0.1:3000/api/v1`), so a preview without that variable
+still runs the studio and the `/dev/accompaniment` test tone.
+
+Create the Vercel project from this repository with:
+
+| Setting          | Value                                                                       |
+| ---------------- | --------------------------------------------------------------------------- |
+| Root Directory   | repository root (leave the dashboard field blank; do not select `apps/web`) |
+| Framework Preset | Vite                                                                        |
+| Node.js Version  | 22.x (`package.json` `engines` is `>=22.13`, which pnpm 11.5.2 requires)    |
+| Install Command  | `pnpm install --frozen-lockfile`                                            |
+| Build Command    | `pnpm --filter @sur/web... build`                                           |
+| Output Directory | `apps/web/dist`                                                             |
+
+Those commands and the output directory are also in `vercel.json`. The rewrite sends client routes
+such as `/studio` and `/dev/accompaniment` to `index.html` after existing files, including
+`/worklets/pitch-processor.js`, are served as static assets.
+
+Set this environment variable on the project (Preview is enough):
+
+- `SUR_ADAPTER_MODE=memory`
+
+The static build does not read it. It is the adapter mode a preview API must use. Do not deploy
+`apps/api` on this project. Vercel sets `NODE_ENV=production` for the build, and
+`apps/api/src/infrastructure/providers.ts` throws in production unless `SUR_ADAPTER_MODE=cloud`.
+A separate API preview would need its own project with Preview environment variables
+`NODE_ENV=development` and `SUR_ADAPTER_MODE=memory`. Leave `VITE_API_BASE_URL` unset unless that
+API preview exists.
+
 ## Workspace layout
 
 - `apps/web` — React PWA and development audio tools
