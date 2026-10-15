@@ -17,7 +17,7 @@
     "test:e2e": "playwright test",
     "test:loudness": "pnpm --filter @sur/audio-engine build && node scripts/verify-loudness.mjs",
     "test:workers": "PYTHONPATH=workers/ml python3 -m unittest discover -s workers/ml/tests -v",
-    "verify:samples": "node scripts/verify-sample-manifest.mjs",
+    "verify:samples": "node --test scripts/sample-manifest.test.mjs && node scripts/verify-sample-manifest.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit && turbo run typecheck",
     "verify": "pnpm verify:samples && pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build"
   },

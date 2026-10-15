@@ -65,11 +65,12 @@ Updated 15 October 2026.
   third-party-stem policy checks also pass.
 - The initial application bundle remains below the 250 KB gzip target.
 - Device latency, vocal-fixture accuracy, acoustic-sample continuity/listening tests, and ground-truth
-  chord agreement remain pending and are not claimed. Current accompaniment timbres are original
-  procedural sample buffers, not recordings of acoustic piano, guitar, tabla, or drums.
+  chord agreement remain pending and are not claimed. Piano, guitar, tabla, and drum voices use
+  trimmed CC0 recordings checked by the sample manifest. The pad envelope and tanpura remain
+  original synthesis; the pad plays the CC0 piano samples.
 
 ## Active slice
 
-Validate accompaniment timing and continuity with long offline/device fixtures, then replace or
-augment procedural timbres with owned or CC0 acoustic recordings under the manifest gate. The cloud
-take-upload/register boundary and render-to-share vertical slice remain the next backend work.
+Validate accompaniment timing and continuity with long offline/device fixtures. Recorded CC0
+piano, guitar, tabla, and drum samples are now gated by the manifest. The cloud take-upload/register
+boundary and render-to-share vertical slice remain the next backend work.

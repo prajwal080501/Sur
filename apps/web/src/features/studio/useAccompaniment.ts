@@ -1,3 +1,4 @@
+import { noteOnTransportClock } from '@sur/audio-engine';
 import type {
   AccompanimentStyle,
   BeatEvent,
@@ -7,6 +8,8 @@ import type {
 } from '@sur/audio-engine/tone-accompaniment';
 import type { ChordEvent, KeyEstimate, NoteEvent } from '@sur/shared-types';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { primeSharedAudioContext } from '../audio/shared-audio.js';
+import { recordedSamples } from './recorded-samples.js';
 
 interface ChordMessage {
   readonly type: 'chord';
@@ -77,13 +80,15 @@ export function useAccompaniment() {
 
   const prepare = useCallback(
     async (key: KeyEstimate) => {
+      const audioContext = primeSharedAudioContext();
       setStatus('loading');
       setError(null);
       try {
         chordLog.current = [];
         if (!engine.current) {
-          const { ToneAccompanimentEngine: Engine } =
+          const { bindAccompanimentContext, ToneAccompanimentEngine: Engine } =
             await import('@sur/audio-engine/tone-accompaniment');
+          bindAccompanimentContext(audioContext);
           engine.current = new Engine();
           unsubscribers.current = [
             engine.current.onBeat(setBeat),
@@ -91,7 +96,7 @@ export function useAccompaniment() {
             engine.current.onDecisionTarget(requestDecision),
           ];
         }
-        await engine.current.load(style);
+        await engine.current.load(style, recordedSamples);
         engine.current.setTempo(bpm);
         engine.current.setRhythm(rhythm);
         engine.current.setHarmonyVolume(harmonyVolume);
@@ -126,7 +131,12 @@ export function useAccompaniment() {
   }, []);
 
   const pushNote = useCallback((note: NoteEvent) => {
-    worker.current?.postMessage({ type: 'push', note });
+    const originMs = engine.current?.transportOriginMs() ?? null;
+    if (originMs === null) return;
+    worker.current?.postMessage({
+      type: 'push',
+      note: noteOnTransportClock(note, originMs),
+    });
   }, []);
 
   const setTempo = useCallback((nextBpm: number) => {
@@ -139,7 +149,7 @@ export function useAccompaniment() {
     setStyleState(nextStyle);
     const activeEngine = engine.current;
     if (activeEngine) {
-      void activeEngine.load(nextStyle).catch((reason: unknown) => {
+      void activeEngine.load(nextStyle, recordedSamples).catch((reason: unknown) => {
         setError(reason instanceof Error ? reason.message : 'Unable to change instrument');
         setStatus('error');
       });

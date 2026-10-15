@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { NavLink, Navigate, Route, Routes } from 'react-router-dom';
+import { AccompanimentTestPage } from './pages/dev/AccompanimentTestPage.js';
 import { LatencyPage } from './pages/dev/LatencyPage.js';
 import { RangePage } from './pages/RangePage.js';
 import { StudioPage } from './pages/StudioPage.js';
@@ -20,6 +21,7 @@ export function App() {
           <NavLink to="/studio">Studio</NavLink>
           <NavLink to="/riyaz/range">Range</NavLink>
           <NavLink to="/dev/latency">Latency lab</NavLink>
+          <NavLink to="/dev/accompaniment">Accompaniment test</NavLink>
         </nav>
       </header>
       <main>
@@ -27,6 +29,7 @@ export function App() {
           <Route path="/studio" element={<StudioPage />} />
           <Route path="/riyaz/range" element={<RangePage />} />
           <Route path="/dev/latency" element={<LatencyPage />} />
+          <Route path="/dev/accompaniment" element={<AccompanimentTestPage />} />
           <Route
             path="/s/:slug"
             element={

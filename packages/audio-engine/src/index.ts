@@ -1,3 +1,4 @@
+export * from './accompaniment/transport-clock.js';
 export * from './accompaniment/transport-math.js';
 export * from './accompaniment/patterns.js';
 export * from './browser/worklet-pitch-detector.js';

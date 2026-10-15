@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pack": "sur-free-procedural-v1",
+  "pack": "sur-free-cc0-v1",
   "maximumPackagedBytes": 15728640,
   "assets": [
     {
@@ -8,40 +8,118 @@
       "kind": "procedural",
       "implementation": "packages/audio-engine/src/accompaniment/tone-accompaniment.ts",
       "license": "LicenseRef-Sur-Original",
-      "source": "Original deterministic synthesis authored for Sur",
+      "source": "Original deterministic synthesis authored for Sur. The pad voice plays the CC0 piano samples with a slow attack.",
       "packagedBytes": 0
     },
     {
-      "id": "harmonic-piano",
-      "kind": "procedural",
-      "implementation": "packages/audio-engine/src/accompaniment/tone-accompaniment.ts",
-      "license": "LicenseRef-Sur-Original",
-      "source": "Original deterministic synthesis authored for Sur",
-      "packagedBytes": 0
+      "id": "piano-c3",
+      "kind": "file",
+      "file": "piano/C3.ogg",
+      "license": "CC0-1.0",
+      "author": "Versilian Studios LLC",
+      "source": "Mono 2.6s trim of JHPiano_NoSus_Close_C3_vl4_rr1.wav from the Versilian Community Sample Library (CC0-1.0). https://github.com/sgossner/VCSL/blob/master/LICENSE",
+      "sourceUrl": "https://github.com/sgossner/VCSL/blob/master/Chordophones/Zithers/Grand%20Piano,%20Steinway%20B/NoSus/JHPiano_NoSus_Close_C3_vl4_rr1.wav",
+      "packagedBytes": 22825
     },
     {
-      "id": "harmonic-strum",
-      "kind": "procedural",
-      "implementation": "packages/audio-engine/src/accompaniment/tone-accompaniment.ts",
-      "license": "LicenseRef-Sur-Original",
-      "source": "Original deterministic synthesis authored for Sur",
-      "packagedBytes": 0
+      "id": "piano-c4",
+      "kind": "file",
+      "file": "piano/C4.ogg",
+      "license": "CC0-1.0",
+      "author": "Versilian Studios LLC",
+      "source": "Mono 2.6s trim of JHPiano_NoSus_Close_C4_vl4_rr1.wav from the Versilian Community Sample Library (CC0-1.0). https://github.com/sgossner/VCSL/blob/master/LICENSE",
+      "sourceUrl": "https://github.com/sgossner/VCSL/blob/master/Chordophones/Zithers/Grand%20Piano,%20Steinway%20B/NoSus/JHPiano_NoSus_Close_C4_vl4_rr1.wav",
+      "packagedBytes": 23593
     },
     {
-      "id": "tabla-keherwa-dadra",
-      "kind": "procedural",
-      "implementation": "packages/audio-engine/src/accompaniment/tone-accompaniment.ts",
-      "license": "LicenseRef-Sur-Original",
-      "source": "Original deterministic percussion synthesis authored for Sur",
-      "packagedBytes": 0
+      "id": "piano-c5",
+      "kind": "file",
+      "file": "piano/C5.ogg",
+      "license": "CC0-1.0",
+      "author": "Versilian Studios LLC",
+      "source": "Mono 2.6s trim of JHPiano_NoSus_Close_C5_vl4_rr1.wav from the Versilian Community Sample Library (CC0-1.0). https://github.com/sgossner/VCSL/blob/master/LICENSE",
+      "sourceUrl": "https://github.com/sgossner/VCSL/blob/master/Chordophones/Zithers/Grand%20Piano,%20Steinway%20B/NoSus/JHPiano_NoSus_Close_C5_vl4_rr1.wav",
+      "packagedBytes": 23868
     },
     {
-      "id": "pop-drums",
-      "kind": "procedural",
-      "implementation": "packages/audio-engine/src/accompaniment/tone-accompaniment.ts",
-      "license": "LicenseRef-Sur-Original",
-      "source": "Original deterministic percussion synthesis authored for Sur",
-      "packagedBytes": 0
+      "id": "guitar-c3",
+      "kind": "file",
+      "file": "guitar/C3.ogg",
+      "license": "CC0-1.0",
+      "author": "Roberto (roberto@zenvoid.org)",
+      "source": "Mono trim of samples/C3.flac from the FreePats Spanish classical guitar bank (CC0-1.0), pack SpanishClassicalGuitar-SFZ+FLAC-20190618. https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://freepats.zenvoid.org/Guitar/acoustic-guitar.html",
+      "packagedBytes": 11840
+    },
+    {
+      "id": "guitar-c4",
+      "kind": "file",
+      "file": "guitar/C4.ogg",
+      "license": "CC0-1.0",
+      "author": "Roberto (roberto@zenvoid.org)",
+      "source": "Mono trim of samples/C4.flac from the FreePats Spanish classical guitar bank (CC0-1.0), pack SpanishClassicalGuitar-SFZ+FLAC-20190618. https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://freepats.zenvoid.org/Guitar/acoustic-guitar.html",
+      "packagedBytes": 14707
+    },
+    {
+      "id": "guitar-c5",
+      "kind": "file",
+      "file": "guitar/C5.ogg",
+      "license": "CC0-1.0",
+      "author": "Roberto (roberto@zenvoid.org)",
+      "source": "Mono trim of samples/C5.flac from the FreePats Spanish classical guitar bank (CC0-1.0), pack SpanishClassicalGuitar-SFZ+FLAC-20190618. https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://freepats.zenvoid.org/Guitar/acoustic-guitar.html",
+      "packagedBytes": 12444
+    },
+    {
+      "id": "tabla-bass",
+      "kind": "file",
+      "file": "tabla/bass.ogg",
+      "license": "CC0-1.0",
+      "author": "mmiron",
+      "source": "Ogg encode of the Sonic Pi redistribution of Freesound 130409 (ghe, a tabla bass stroke), which Freesound marks Creative Commons 0. Sonic Pi trims some of these recordings and also places them under CC0. https://github.com/sonic-pi-net/sonic-pi/blob/dev/etc/samples/README.md",
+      "sourceUrl": "https://freesound.org/s/130409/",
+      "packagedBytes": 10880
+    },
+    {
+      "id": "tabla-treble",
+      "kind": "file",
+      "file": "tabla/treble.ogg",
+      "license": "CC0-1.0",
+      "author": "mmiron",
+      "source": "Ogg encode of the Sonic Pi redistribution of Freesound 130421 (na, a tabla treble stroke), which Freesound marks Creative Commons 0. https://github.com/sonic-pi-net/sonic-pi/blob/dev/etc/samples/tabla_na.flac",
+      "sourceUrl": "https://freesound.org/s/130421/",
+      "packagedBytes": 8621
+    },
+    {
+      "id": "drum-kick",
+      "kind": "file",
+      "file": "drums/kick.ogg",
+      "license": "CC0-1.0",
+      "author": "Versilian Studios LLC",
+      "source": "Mono trim of BDrumNew_hit_v3_rr1_Sum.wav from the Versilian Community Sample Library (CC0-1.0). https://github.com/sgossner/VCSL/blob/master/LICENSE",
+      "sourceUrl": "https://github.com/sgossner/VCSL/blob/master/Membranophones/Struck%20Membranophones/Bass%20Drum%201/BDrumNew_hit_v3_rr1_Sum.wav",
+      "packagedBytes": 8626
+    },
+    {
+      "id": "drum-snare",
+      "kind": "file",
+      "file": "drums/snare.ogg",
+      "license": "CC0-1.0",
+      "author": "Versilian Studios LLC",
+      "source": "Mono trim of snare_mf1.wav from the Versilian Community Sample Library (CC0-1.0). https://github.com/sgossner/VCSL/blob/master/LICENSE",
+      "sourceUrl": "https://github.com/sgossner/VCSL/blob/master/Membranophones/Struck%20Membranophones/Legacy%20Snares/OldSnare/snare_mf1.wav",
+      "packagedBytes": 5029
+    },
+    {
+      "id": "drum-hat",
+      "kind": "file",
+      "file": "drums/hat.ogg",
+      "license": "CC0-1.0",
+      "author": "Versilian Studios LLC",
+      "source": "Mono trim of HiHat_Close_rr1_Mid.wav from the Versilian Community Sample Library (CC0-1.0). https://github.com/sgossner/VCSL/blob/master/LICENSE",
+      "sourceUrl": "https://github.com/sgossner/VCSL/blob/master/Idiophones/Struck%20Idiophones/Hi-Hat%20Cymbal/HiHat_Close_rr1_Mid.wav",
+      "packagedBytes": 6086
     }
   ]
 }

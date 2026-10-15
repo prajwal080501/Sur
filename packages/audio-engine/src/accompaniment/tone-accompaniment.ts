@@ -16,6 +16,11 @@ import {
 
 export type { AccompanimentStyle, RhythmStyle } from './patterns.js';
 
+/** Use the page AudioContext so samplers and the transport share the resumed clock. */
+export function bindAccompanimentContext(context: AudioContext): void {
+  Tone.setContext(context);
+}
+
 export interface BeatEvent {
   readonly bar: number;
   readonly beat: 1 | 2 | 3 | 4;
@@ -38,6 +43,33 @@ const PERCUSSION_VOICES: readonly PercussionVoice[] = [
   'snare',
   'hat',
 ];
+
+export interface RecordedSamples {
+  readonly piano: Readonly<Record<string, string>>;
+  readonly guitar: Readonly<Record<string, string>>;
+  readonly percussion: Readonly<Record<PercussionVoice, string>>;
+}
+
+function whenReady<T extends { loaded: boolean }>(
+  create: (handlers: { onload: () => void; onerror: (error: Error) => void }) => T,
+): Promise<T> {
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    let created: T | null = null;
+    const succeed = () => {
+      if (settled || !created) return;
+      settled = true;
+      resolve(created);
+    };
+    const fail = (error: unknown) => {
+      if (settled) return;
+      settled = true;
+      reject(error instanceof Error ? error : new Error('Unable to load sample'));
+    };
+    created = create({ onload: succeed, onerror: fail });
+    if (created.loaded) succeed();
+  });
+}
 
 function clampUnit(value: number): number {
   return Math.max(0, Math.min(1, value));
@@ -102,14 +134,28 @@ function createPercussionSample(voice: PercussionVoice): AudioBuffer {
   });
 }
 
-function createSampler(style: AccompanimentStyle): Tone.Sampler {
-  const samples = Object.fromEntries(
-    SAMPLE_NOTES.map((note, index) => [
-      note,
-      createHarmonicSample(style, SAMPLE_FREQUENCIES[index] ?? SAMPLE_FREQUENCIES[0]),
-    ]),
-  );
-  return new Tone.Sampler({ urls: samples, release: style === 'pad' ? 1.2 : 0.5 });
+function createSampler(
+  style: AccompanimentStyle,
+  samples: RecordedSamples | null,
+): Promise<Tone.Sampler> {
+  const release = style === 'pad' ? 1.2 : style === 'piano' ? 0.45 : 0.18;
+  const attack = style === 'pad' ? 0.18 : 0;
+  const urls = samples
+    ? { ...(style === 'strum' ? samples.guitar : samples.piano) }
+    : Object.fromEntries(
+        SAMPLE_NOTES.map((note, index) => [
+          note,
+          createHarmonicSample(style, SAMPLE_FREQUENCIES[index] ?? SAMPLE_FREQUENCIES[0]),
+        ]),
+      );
+  return whenReady((handlers) => new Tone.Sampler({ urls, attack, release, ...handlers }));
+}
+
+function createPercussion(samples: RecordedSamples | null): Promise<Tone.Players> {
+  const urls = samples
+    ? { ...samples.percussion }
+    : Object.fromEntries(PERCUSSION_VOICES.map((voice) => [voice, createPercussionSample(voice)]));
+  return whenReady((handlers) => new Tone.Players({ urls, ...handlers }));
 }
 
 function orderNotes(notes: readonly string[], order: NoteOrder): readonly string[] {
@@ -147,15 +193,14 @@ export class ToneAccompanimentEngine {
   #startedAtAudioTime = 0;
   #countInComplete = false;
   #countInFallback: ReturnType<typeof setTimeout> | null = null;
+  #samples: RecordedSamples | null = null;
 
-  async load(style: AccompanimentStyle): Promise<void> {
+  async load(style: AccompanimentStyle, samples?: RecordedSamples): Promise<void> {
     await Tone.start();
-    const nextSampler = createSampler(style).connect(this.#harmonyGain);
+    if (samples) this.#samples = samples;
+    const nextSampler = (await createSampler(style, this.#samples)).connect(this.#harmonyGain);
     if (!this.#percussion) {
-      const samples = Object.fromEntries(
-        PERCUSSION_VOICES.map((voice) => [voice, createPercussionSample(voice)]),
-      );
-      this.#percussion = new Tone.Players(samples).connect(this.#rhythmGain);
+      this.#percussion = (await createPercussion(this.#samples)).connect(this.#rhythmGain);
     }
     if (this.#repeatId !== null && this.#sampler) {
       this.#pendingSampler?.dispose();
@@ -268,6 +313,10 @@ export class ToneAccompanimentEngine {
   onDecisionTarget(callback: (target: DecisionTarget) => void): () => void {
     this.#decisionCallbacks.add(callback);
     return () => this.#decisionCallbacks.delete(callback);
+  }
+
+  transportOriginMs(): number | null {
+    return this.#repeatId === null ? null : this.#startedAtAudioTime * 1000;
   }
 
   dispose(): void {

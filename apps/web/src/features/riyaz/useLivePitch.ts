@@ -1,6 +1,7 @@
 import { WorkletPitchDetector } from '@sur/audio-engine';
 import type { NoteEvent, PitchFrame } from '@sur/shared-types';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { primeSharedAudioContext } from '../audio/shared-audio.js';
 
 type PitchStatus = 'idle' | 'requesting' | 'listening' | 'denied' | 'unsupported' | 'error';
 
@@ -13,97 +14,127 @@ export function useLivePitch() {
   const frameSubscribers = useRef(new Set<(frame: PitchFrame) => void>());
   const noteSubscribers = useRef(new Set<(note: NoteEvent) => void>());
   const pcmChunkSubscribers = useRef(new Set<(pcm: Float32Array) => void>());
+  const starting = useRef(false);
   const session = useRef<{
     context: AudioContext;
-    stream: MediaStream;
+    stream: MediaStream | null;
     detector: WorkletPitchDetector;
     unsubscribeFrame: () => void;
     unsubscribeNote: () => void;
     unsubscribePcmChunk: () => void;
   } | null>(null);
 
-  const stop = useCallback(async () => {
+  const releaseSession = useCallback((active: NonNullable<typeof session.current>) => {
+    active.unsubscribeFrame();
+    active.unsubscribeNote();
+    active.unsubscribePcmChunk();
+    active.detector.dispose();
+    for (const track of active.stream?.getTracks() ?? []) track.stop();
+  }, []);
+
+  const stop = useCallback(() => {
     const active = session.current;
     session.current = null;
-    if (active) {
-      active.unsubscribeFrame();
-      active.unsubscribeNote();
-      active.unsubscribePcmChunk();
-      active.detector.dispose();
-      for (const track of active.stream.getTracks()) track.stop();
-      await active.context.close();
-    }
+    starting.current = false;
+    if (active) releaseSession(active);
     latestFrame.current = null;
     setFrame(null);
     setStatus('idle');
+    return Promise.resolve();
+  }, [releaseSession]);
+
+  const attach = useCallback(async (source: AudioNode, stream: MediaStream | null) => {
+    const context = primeSharedAudioContext();
+    if (source.context !== context) {
+      throw new Error('Audio source is not on the shared AudioContext');
+    }
+    const detector = new WorkletPitchDetector('/worklets/pitch-processor.js');
+    await detector.init(context, source);
+    const unsubscribeFrame = detector.onFrame((nextFrame) => {
+      latestFrame.current = nextFrame;
+      for (const subscriber of frameSubscribers.current) subscriber(nextFrame);
+      const now = performance.now();
+      if (now - lastUiUpdateMs.current >= 80) {
+        lastUiUpdateMs.current = now;
+        setFrame(nextFrame);
+      }
+    });
+    const unsubscribeNote = detector.onNote((note) => {
+      for (const subscriber of noteSubscribers.current) subscriber(note);
+    });
+    const unsubscribePcmChunk = detector.onPcmChunk((pcm) => {
+      for (const subscriber of pcmChunkSubscribers.current) subscriber(pcm);
+    });
+    session.current = {
+      context,
+      stream,
+      detector,
+      unsubscribeFrame,
+      unsubscribeNote,
+      unsubscribePcmChunk,
+    };
+    setStatus('listening');
+    return true;
   }, []);
 
   const start = useCallback(async () => {
-    if (session.current || status === 'requesting') return false;
+    primeSharedAudioContext();
+    if (session.current || starting.current) return false;
     if (!navigator.mediaDevices?.getUserMedia || !window.AudioWorkletNode) {
       setStatus('unsupported');
       return false;
     }
+    starting.current = true;
     setStatus('requesting');
     setError(null);
-    let context: AudioContext | null = null;
     let stream: MediaStream | null = null;
     try {
       stream = await navigator.mediaDevices.getUserMedia({
         audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
       });
-      context = new AudioContext({ latencyHint: 'interactive', sampleRate: 48_000 });
-      await context.resume();
-      const detector = new WorkletPitchDetector('/worklets/pitch-processor.js');
-      await detector.init(context, context.createMediaStreamSource(stream));
-      const unsubscribeFrame = detector.onFrame((nextFrame) => {
-        latestFrame.current = nextFrame;
-        for (const subscriber of frameSubscribers.current) subscriber(nextFrame);
-        const now = performance.now();
-        if (now - lastUiUpdateMs.current >= 80) {
-          lastUiUpdateMs.current = now;
-          setFrame(nextFrame);
-        }
-      });
-      const unsubscribeNote = detector.onNote((note) => {
-        for (const subscriber of noteSubscribers.current) subscriber(note);
-      });
-      const unsubscribePcmChunk = detector.onPcmChunk((pcm) => {
-        for (const subscriber of pcmChunkSubscribers.current) subscriber(pcm);
-      });
-      session.current = {
-        context,
-        stream,
-        detector,
-        unsubscribeFrame,
-        unsubscribeNote,
-        unsubscribePcmChunk,
-      };
-      setStatus('listening');
-      return true;
+      const context = primeSharedAudioContext();
+      return await attach(context.createMediaStreamSource(stream), stream);
     } catch (reason) {
       for (const track of stream?.getTracks() ?? []) track.stop();
-      if (context) await context.close();
       const denied = reason instanceof DOMException && reason.name === 'NotAllowedError';
       setStatus(denied ? 'denied' : 'error');
       setError(reason instanceof Error ? reason.message : 'Unable to start microphone input');
+      starting.current = false;
       return false;
     }
-  }, [status]);
+  }, [attach]);
+
+  const startWithSource = useCallback(
+    async (source: AudioNode) => {
+      primeSharedAudioContext();
+      if (session.current || starting.current) return false;
+      if (!window.AudioWorkletNode) {
+        setStatus('unsupported');
+        return false;
+      }
+      starting.current = true;
+      setStatus('requesting');
+      setError(null);
+      try {
+        return await attach(source, null);
+      } catch (reason) {
+        setStatus('error');
+        setError(reason instanceof Error ? reason.message : 'Unable to start the test tone');
+        starting.current = false;
+        return false;
+      }
+    },
+    [attach],
+  );
 
   useEffect(
     () => () => {
       const active = session.current;
       session.current = null;
-      if (!active) return;
-      active.unsubscribeFrame();
-      active.unsubscribeNote();
-      active.unsubscribePcmChunk();
-      active.detector.dispose();
-      for (const track of active.stream.getTracks()) track.stop();
-      void active.context.close();
+      starting.current = false;
+      if (active) releaseSession(active);
     },
-    [],
+    [releaseSession],
   );
   const getLatestFrame = useCallback(() => latestFrame.current, []);
   const onNote = useCallback((callback: (note: NoteEvent) => void) => {
@@ -140,6 +171,7 @@ export function useLivePitch() {
     status,
     error,
     start,
+    startWithSource,
     stop,
     onFrame,
     onNote,

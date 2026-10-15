@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
@@ -27,10 +28,14 @@ export default defineConfig({
       },
       workbox: {
         cleanupOutdatedCaches: true,
-        globPatterns: ['**/*.{html,js,css}'],
+        globPatterns: ['**/*.{html,js,css,ogg}'],
         navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/worklets\//],
       },
     }),
   ],
-  server: { port: 5173 },
+  server: {
+    port: 5173,
+    fs: { allow: [fileURLToPath(new URL('../..', import.meta.url))] },
+  },
 });

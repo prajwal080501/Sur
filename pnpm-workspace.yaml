@@ -3,6 +3,12 @@ packages:
   - packages/*
   - workers/*
 
+allowBuilds:
+  cpu-features: false
+  esbuild: true
+  protobufjs: false
+  ssh2: false
+
 minimumReleaseAgeExclude:
   - '@aws-sdk/client-s3@3.1152.0'
   - '@aws-sdk/client-sqs@3.1152.0'
