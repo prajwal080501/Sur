@@ -20,6 +20,7 @@ import {
   type WorkerNormalizedMix,
 } from '../features/recording/audioExportWorkerClient.js';
 import { MP3_BITRATES, type Mp3Bitrate } from '../features/recording/mp3.js';
+import { primeSharedAudioContext } from '../features/audio/shared-audio.js';
 import { useAccompaniment } from '../features/studio/useAccompaniment.js';
 import { useKeyDetection, type KeyMode } from '../features/studio/useKeyDetection.js';
 import { useStudioStore } from '../features/studio/useStudioStore.js';
@@ -129,6 +130,7 @@ export function StudioPage() {
   }, [accompaniment.countInComplete, pitch.startRecording, send, state]);
 
   const startListening = async () => {
+    primeSharedAudioContext();
     keyDetection.begin(keyMode);
     if (await pitch.start()) send({ type: state === 'keyConfirm' ? 'RELISTEN' : 'START_LISTEN' });
   };
@@ -154,6 +156,7 @@ export function StudioPage() {
 
   const startAccompanying = async () => {
     if (!selectedKey) return;
+    primeSharedAudioContext();
     if (tanpura.playing) await tanpura.toggle();
     const [micReady, engineReady] = await Promise.all([
       pitch.start(),
@@ -175,6 +178,7 @@ export function StudioPage() {
 
   const startRecordingSession = async () => {
     if (!selectedKey) return;
+    primeSharedAudioContext();
     if (tanpura.playing) await tanpura.toggle();
     recordingStarted.current = false;
     recordingPitchFrames.current = [];

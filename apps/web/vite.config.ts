@@ -1,8 +1,14 @@
+import { fileURLToPath } from 'node:url';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+  optimizeDeps: {
+    // These load only after a click or an export. Prebundle them so the first
+    // session does not reload once Vite finishes discovering them.
+    include: ['tone', '@sur/audio-engine/tone-accompaniment', '@breezystack/lamejs'],
+  },
   plugins: [
     react(),
     VitePWA({
@@ -27,10 +33,14 @@ export default defineConfig({
       },
       workbox: {
         cleanupOutdatedCaches: true,
-        globPatterns: ['**/*.{html,js,css}'],
+        globPatterns: ['**/*.{html,js,css,ogg}'],
         navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/worklets\//],
       },
     }),
   ],
-  server: { port: 5173 },
+  server: {
+    port: 5173,
+    fs: { allow: [fileURLToPath(new URL('../..', import.meta.url))] },
+  },
 });
