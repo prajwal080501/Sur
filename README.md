@@ -6,7 +6,7 @@ The product and technical requirements live in [docs/SPEC.md](docs/SPEC.md). Dev
 
 ## Prerequisites
 
-- Node.js 20.19 or newer
+- Node.js 22.13 or newer
 - pnpm 11.5.2
 - Python 3.11 and ffmpeg for media-worker verification
 
